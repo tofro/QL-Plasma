@@ -1,3 +1,4 @@
+; Automatically created by mksintab.bas
 	SECTION SineTab
 	XDEF sinTab, sinSize
 sinSize:	dc.w 	1024
