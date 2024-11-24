@@ -1,0 +1,21 @@
+*******************************************************************************************
+* dataSpace_in
+*
+* Data space definitions for flappy
+* Also holds some general definitions
+*
+*******************************************************************************************
+                OFFSET  0
+
+;                COMMON DATA
+
+channelId       ds.l    1
+waveSin         ds.w    1
+waveCos         ds.w    1
+waveSinInc      ds.w    1
+waveCosInc      ds.w    1
+blkDef
+blkW            ds.w    1
+blkH            ds.w    1
+blkX            ds.w    1
+blkY            ds.w    1

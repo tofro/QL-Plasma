@@ -1,0 +1,115 @@
+**************
+* some all-purpose generic macros
+**************
+
+                NOLIST
+*********
+* Version macro
+* Wants a (version) name and an author.
+* Generates a header that can go into the job start code 
+* (after the job name) to uniquely version-stamp the binary.
+********* 
+VERSION         MACRO   name,author
+                dc.b    10,10
+                dc.b    [name]
+                dc.b    10,'Built '
+                dc.b    '[.TIME]'
+                dc.b    ' '
+                dc.b    '[.DATE]'
+                dc.b    ' by '
+                dc.b    [author]
+                dc.b    10,10
+                ds.w    0
+                ENDM
+
+********
+* Job start code macro. 
+* Normally goes in front of the above
+********
+JOBSTRT         MACRO   name,jobstart
+                EXPAND
+                bra.s   [jobstart]
+                dc.l    0
+                dc.w    $4afb
+                STRING$ {[name]}
+                ds.w    0
+                NOEXPAND
+                ENDM
+
+********
+* Repetition macro
+* Rolls out the operation sequence given as parameters
+* n-times (first parameter)
+* In case you need repetition-unique labels, suffix
+* them with ".lab" - The macro will replace that with 
+* a repetition-unique number.
+* Note a normal mnemonic needs at least one white space
+* character in the parameter - Everything else is con-
+* sidered a label.
+*
+* My go-to method to speed up sprite painting and
+* waste your precious RAM....
+********
+.REPTNUM        SETNUM  0
+
+REPT            MACRO   num,args
+                LOCAL   count,pIndex,pCount,labPos,lablab
+count           SETNUM  1
+lablab          SETSTR  .lab
+lp              MACLAB
+pCount          SETNUM  [.NPARMS]-1
+pIndex          SETNUM  2
+pLoop           MACLAB
+command         SETSTR  {[.PARM([pIndex])]}
+labPos          SETNUM  [.INSTR(command,lablab)]
+                IFNUM   [labPos] = 0 GOTO noreplace
+command         SETSTR  {[.LEFT(command,[labpos])][.REPTNUM]}
+noreplace       MACLAB
+                EXPAND
+[command]
+                NOEXPAND
+pCount          SETNUM  [pCount]-1
+pIndex          SETNUM  [pIndex]+1
+                IFNUM   [pCount] > 0 GOTO pLoop
+.REPTNUM        SETNUM  [.REPTNUM]+1
+count           SETNUM  [count]+1
+                IFNUM   [count] <= [num] GOTO lp
+                ENDM  
+
+* This macro jumps (in a "PC-relative" way) to a 
+* subroutine which would normally be not reachable 
+* by a bsr. Use in large programs you dont want to 
+* make 'impure'. 
+FARJSR          MACRO   target,register   
+                EXPAND        
+                lea     .lab[.L],[register]           
+                add.l   ([register]),[register]           
+                jsr     ([register])           
+                bra.s   .across[.L]  
+.lab[.L]        dc.l    [target]-* 
+.across[.L]               
+		ENDM   
+
+* This macro jumps (in a "PC-relative" way) to an 
+* address which would normally be not reachable 
+* by a bsr. Use in large programs you don't want 
+* to make 'impure'. 
+FARJMP          MACRO   target,register           
+                lea     .lab[.L],[register]           
+                add.l   ([register]),[register]        
+                jmp.l   ([register])           
+.lab[.L]        dc.l    [target]-*               
+                ENDM                    
+
+* This macro loads an address register in a "PC-relative" 
+* way with an address value that would normally be 
+* unreachable for PC-relative addressing. Use in 
+* large programs you don't want to make 'impure' 
+LEAFAR          MACRO   target,register           
+                lea     .lab[.L],[register]           
+                add.l   ([register]),[register]           
+                bra.s   .across[.L] 
+.lab[.L]        dc.l    [target]-*
+.across[.L]
+                ENDM
+

@@ -1,0 +1,6 @@
+COMMON dummy
+INPUT *
+
+INPUT sintab_rel
+
+DATA 512
