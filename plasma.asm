@@ -3,6 +3,8 @@
 *
 * Old-school plasma demo for SMSQ/E and High-Colour
 *
+* For a change: Uses BLOCK instead of writing directly to screen memory
+* which would be much faster - but is left as an exercise to the reader....
 ************************************************************************************
                 INCLUDE 'win1_assembler_qdos1_in'
                 INCLUDE 'win1_assembler_qdos2_in'
